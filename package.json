@@ -13,6 +13,9 @@
     "tailwind:watch": "pnpx tailwindcss -i ./public/stylesheets/tailwind.css -o ./public/stylesheets/style.css --watch",
     "postcss": "pnpx postcss ./public/stylesheets/tailwind.css -o ./public/stylesheets/style.css"
   },
+  "engines": {
+    "node": ">=16.9.0"
+  },
   "dependencies": {
     "autoprefixer": "^10.4.17",
     "colors": "^1.4.0",
