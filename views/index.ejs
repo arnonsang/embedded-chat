@@ -6,7 +6,7 @@
 </head>
 
 <body class="container mx-auto">
-  <div class="hero min-h-screen bg-base-200">
+  <div id="landing-join" class="hero min-h-screen bg-base-200">
     <div class="hero-content flex-col lg:flex-row-reverse">
       <div class="card shrink-0 w-full max-w-sm shadow-2xl bg-base-100">
         <form id="joinForm" class="card-body">
@@ -21,10 +21,11 @@
             <label class="label">
               <span class="label-text">Room</span>
             </label>
-            <input id="roomId" name="room" type="text" maxlength="12" value="<%= config.room %>"
-              placeholder="ex. eXd5s" class="input input-bordered" required />
+            <input id="roomId" name="room" type="text" maxlength="12" value="<%= config.room %>" placeholder="ex. eXd5s"
+              class="input input-bordered" required />
             <label class="label">
               <button onclick="newRoom()" class="label-text-alt link link-hover">Create new room?</button>
+              <a href="#embed-setting" class="label-text-alt link link-hover">Generate embed code?</a>
             </label>
           </div>
           <div class="form-control mt-6">
@@ -40,6 +41,87 @@
       </div>
     </div>
   </div>
+
+  <div id="embed-setting" class="min-h-screen bg-base-200 flex justify-center align-middle items-center">
+    <div class="flex flex-col lg:flex-row">
+      <!-- <div class="text-center lg:text-left">
+        <iframe src="/chat/embed?name=john&room=preview" title="ICKChat" height="458" id="previewFrame" frameborder="0"></iframe>
+      </div> -->
+      <div class="card shrink-0 w-full max-w-sm shadow-2xl bg-base-100">
+        <div class="card-body">
+
+          <div class="form-control">
+            <label class="label">
+              <span class="label-text">Theme</span>
+            </label>
+            <select name="theme-setting" id="theme-setting" class="select select-primary select-md w-full max-w-xs">
+              <option value="no-theme" selected>Select your theme</option>
+              <option value="cupcake">Cupcake</option>
+              <option value="bumblebee">Bumblebee</option>
+              <option value="emerald">Emerald</option>
+              <option value="corporate">Corporate</option>
+              <option value="synthwave">Synthwave</option>
+              <option value="retro">Retro</option>
+              <option value="cyberpunk">Cyberpunk</option>
+              <option value="valentine">Valentine</option>
+              <option value="halloween">Halloween</option>
+              <option value="garden">Garden</option>
+              <option value="forest">Forest</option>
+              <option value="aqua">Aqua</option>
+              <option value="lofi">Lofi</option>
+              <option value="pastel">Pastel</option>
+              <option value="fantasy">Fantasy</option>
+              <option value="wireframe">Wireframe</option>
+              <option value="black">Black</option>
+              <option value="luxury">Luxury</option>
+              <option value="dracula">Dracula</option>
+              <option value="cmyk">CMYK</option>
+              <option value="autumn">Autumn</option>
+              <option value="business">Business</option>
+              <option value="acid">Acid</option>
+              <option value="lemonade">Lemonade</option>
+              <option value="night">Night</option>
+              <option value="coffee">Coffee</option>
+              <option value="winter">Winter</option>
+              <option value="dim">Dim</option>
+              <option value="nord">Nord</option>
+              <option value="sunset">Sunset</option>
+            </select>
+          </div>
+
+          <div class="form-control">
+            <label class="label cursor-pointer justify-start gap-2">
+              <input type="checkbox" checked="checked" name="show-join-leave-setting" id="show-join-leave-setting" class="checkbox checkbox-primary" />
+              <span class="label-text">Show when member join or leave</span> 
+              
+            </label>
+          </div>
+
+          <div class="form-control">
+            <label class="label cursor-pointer justify-start gap-2">
+              <input type="checkbox" checked="checked" name="show-time-setting" id="show-time-setting" class="checkbox checkbox-primary" />
+              <span class="label-text">Show chat timestamp</span> 
+              
+            </label>
+          </div>
+
+          <div class="form-control">
+            <label class="label cursor-pointer justify-start gap-2">
+              <input type="checkbox" checked="checked" name="show-name-setting" id="show-name-setting" class="checkbox checkbox-primary" />
+              <span class="label-text">Show username</span> 
+              
+            </label>
+          </div>
+
+          <textarea onclick="copyEmbed()" readonly id="embedCode" class="textarea textarea-primary" placeholder="Embed code"></textarea>
+
+          <div class="form-control mt-6">
+            <a target="_blank" class="btn btn-primary" href="#" id="previewLink">Preview!</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 </body>
 
 <%- include('layout/theme', {theme}) %>
@@ -47,79 +129,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.1.2/socket.io.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
-<script>
-  const joinRoom = () => {
-    const waitTime = 5 * 1000;
-    const name = document.getElementById("username").value;
-    const room = document.getElementById("roomId").value;
-    Toastify({
-      text: "Joining room " + room + " as " + name,
-      duration: waitTime,
-      
-      close: true,
-      gravity: "top", // `top` or `bottom`
-      position: "left", // `left`, `center` or `right`
-      stopOnFocus: true, // Prevents dismissing of toast on hover
-      style: {
-        background: "linear-gradient(to right, #00b09b, #96c93d)",
-      },
-      onClick: function () {} // Callback after click
-    }).showToast();
-
-    setTimeout(() => {
-      window.location.href = `/chat/embed?name=${name}&room=${room}`;
-    }, waitTime);
-  };
-
-  const generateRoomCode = (digit) => {
-    //generate random char to be a  identifier
-    let result = "";
-    const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-    const charactersLength = characters.length;
-    for (let i = 0; i < digit; i++) {
-      result += characters.charAt(Math.floor(Math.random() * charactersLength));
-    }
-    return result;
-  };
-
-  const newRoom = () => {
-    const roomCode = generateRoomCode(5);
-    const waitTime = 3 * 1000;
-    Toastify({
-      text: "Creating new room " + roomCode,
-      duration: waitTime,
-      close: true,
-      gravity: "top", // `top` or `bottom`
-      position: "left", // `left`, `center` or `right`
-      stopOnFocus: true, // Prevents dismissing of toast on hover
-      style: {
-        background: "linear-gradient(to right, #00b09b, #96c93d)",
-      },
-      onClick: function () {} // Callback after click
-    }).showToast();
-
-    document.getElementById("roomId").value = roomCode;
-
-    if(document.getElementById("username").value == ""){
-      Toastify({
-      text: "Please enter your name and join your new room!",
-      duration: waitTime,
-      close: true,
-      gravity: "top", // `top` or `bottom`
-      position: "left", // `left`, `center` or `right`
-      stopOnFocus: true, // Prevents dismissing of toast on hover
-      style: {
-        background: "linear-gradient(to right, #00b09b, #96c93d)",
-      },
-      onClick: function () {} // Callback after click
-    }).showToast();
-    }
-  }
-
-  document.getElementById("joinForm").addEventListener("submit", (e) => {
-    e.preventDefault();
-    joinRoom();
-  });
-</script>
+<script src="./javascript/index.js"></script>
+<script src="./javascript/embed-config.js"></script>
 
 </html>

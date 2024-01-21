@@ -85,7 +85,7 @@
                 // replace new line with <br />
                 msg = msg.replace(/\n/g, '<br />');
             }
-            console.log(msg);
+
             return msg;
         };
 
@@ -114,7 +114,7 @@
                     showName: eval('<%= settings.showName %>'),
                 };
 
-                console.log(`${socket.id} connected`);
+     
 
                 socket.emit('join-room', {
                     room: roomId,
