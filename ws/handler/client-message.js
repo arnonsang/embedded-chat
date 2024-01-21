@@ -1,5 +1,5 @@
 const log = (msg) => {
-    // if(process.env.MODE !== 'dev') return;
+    if(process.env.MODE !== 'dev') return;
 
     console.log(`========================================`.blue);
     console.log(`Message from ${msg.username} in ${msg.room}`.white);
