@@ -1,0 +1,57 @@
+<script>
+  const availableThemes = [
+    "cupcake",
+    "bumblebee",
+    "emerald",
+    "corporate",
+    "synthwave",
+    "retro",
+    "cyberpunk",
+    "valentine",
+    "halloween",
+    "garden",
+    "forest",
+    "aqua",
+    "lofi",
+    "pastel",
+    "fantasy",
+    "wireframe",
+    "black",
+    "luxury",
+    "dracula",
+    "cmyk",
+    "autumn",
+    "business",
+    "acid",
+    "lemonade",
+    "night",
+    "coffee",
+    "winter",
+    "dim",
+    "nord",
+    "sunset",
+  ];
+  const userTheme = "<%=theme%>";
+  console.log(`Usertheme ${userTheme}`);
+  //get system theme
+  const theme = window.matchMedia("(prefers-color-scheme: dark)").matches
+    ? "dark"
+    : "light";
+
+  //set data-theme to match system theme
+  switch (userTheme) {
+    case "dark" && userTheme == "no-theme":
+      document.documentElement.setAttribute("data-theme", "dark");
+      break;
+    case "light" && userTheme == "no-theme":
+      document.documentElement.setAttribute("data-theme", "light");
+      break;
+    default:
+      if (availableThemes.includes(userTheme)) {
+        document.documentElement.setAttribute("data-theme", userTheme);
+      } else {
+        document.documentElement.setAttribute("data-theme", "cupcake");
+      }
+      break;
+  }
+</script>

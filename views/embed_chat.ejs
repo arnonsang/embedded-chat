@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html data-theme="cupcake" class="bg-base-200">
+
+<head>
+    <%- include('layout/header', {title:`${config.room} | Chat`, description:`Join room id ${config.room} now. ICKChat, a Embedded chat for every site`}) %>
+
+</head>
+
+<body class="container mx-auto min-h-screen flex items-center justify-center">
+    <div class="h-screen w-full max-w-xl flex flex-col border-2 border-primary-content">
+        <div id="chat-display" class="flex-1 w-full overflow-y-auto overflow-x-clip text-wrap p-4 bg-base-100">
+            <!-- Chat messages will be dynamically added here -->
+
+
+        </div>
+        <form id="action-bar" class="flex-none flex flex-row items-center p-2 border-t border-primary-content">
+            <input type="hidden" name="username" id="username" value="YourUsername">
+            <input disabled type="text" name="user-input" id="user-input"
+                class="flex-grow bg-base-200 text-primary px-4 py-2 rounded-l-md" placeholder="Type your message...">
+            <button disabled id="send-btn" class="btn btn-primary rounded-r-md">Send</button>
+        </form>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.1.2/socket.io.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script>
+        const joinRoom = () => {
+            const name = document.getElementById("username").value;
+            const room = document.getElementById("roomId").value;
+            alert(`Joining room ${room} as ${name}`);
+        };
+
+        const generateIdentifier = (digit) => {
+            //generate random char to be a user identifier
+            let result = '#';
+            const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+            const charactersLength = characters.length;
+            for (let i = 0; i < digit; i++) {
+                result += characters.charAt(Math.floor(Math.random() * charactersLength));
+            }
+            return result;
+        }
+
+        const formatMessage = (msg) => {
+            // if message includes a link
+            if (msg.includes("https://") || msg.includes("http://")) {
+
+                // if message is youtube link
+                if (msg.includes("youtube.com/watch?v=")) {
+
+                    // replace link with embed link
+                    msg = msg.replace(
+                        /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com|youtu\.be)\/(?:watch\?v=)?(.+)/g,
+                        '<iframe width="256" height="144" src="https://www.youtube.com/embed/$1" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>'
+
+                    );
+                }
+                // if message is image link
+                else if (msg.match(/\.(jpeg|jpg|gif|png)$/)) {
+                    // replace link with image tag
+                    msg = msg.replace(
+                        /(https?:\/\/.*\.(?:png|jpg))/i,
+                        '<img src="$1" width="256" height="144" alt="image" />'
+                    );
+                }
+                // if message is a link
+                else {
+                    // replace link with anchor tag
+                    msg = msg.replace(
+                        /(https?:\/\/[^\s]+)/g,
+                        '<a href="$1" target="_blank" class="link-hover">$1</a>'
+                    );
+                }
+            }
+            // if message is a base64 image
+            if (msg.includes("data:image/")) {
+                // replace link with image tag
+                msg = msg.replace(
+                    /(data:image\/[^\s]+)/g,
+                    '<img src="$1" alt="image" />'
+                );
+            }
+            // if message includes a new line
+            if (msg.match(/\n/g)) {
+                // replace new line with <br />
+                msg = msg.replace(/\n/g, '<br />');
+            }
+            console.log(msg);
+            return msg;
+        };
+
+        (() => {
+            const socket = io("http://localhost:8000", {
+                transports: ["websocket"],
+                cors: ["http://localhost:8000"],
+                handlePreflightRequest: (req, res) => {
+                    const headers = {
+                        "Access-Control-Allow-Headers": "Content-Type, Authorization",
+                        "Access-Control-Allow-Origin": "*", //or the specific origin you want to give access to,
+                        "Access-Control-Allow-Credentials": true,
+                    };
+                    res.writeHead(200, headers);
+                    res.end();
+                },
+            });
+            //socket events
+
+            socket.on('connect', () => {
+                let roomId = '<%= config.room %>'
+                let username = `<%= config.name %>${generateIdentifier(5)}`
+                let userSetting = {
+                    showTime: eval('<%= settings.showTime %>'),
+                    showJoinLeave: eval('<%= settings.showJoinLeave %>'),
+                    showName: eval('<%= settings.showName %>'),
+                };
+
+                console.log(`${socket.id} connected`);
+
+                socket.emit('join-room', {
+                    room: roomId,
+                    username: username
+                });
+
+                //enable chat
+                document.getElementById("user-input").disabled = false;
+                document.getElementById("send-btn").disabled = false;
+
+                socket.on("server-message", (msg) => {
+
+                    if(!userSetting.showJoinLeave && msg.username == "Server") return;
+
+                    const chatDisplay = document.getElementById("chat-display");
+                    const chat = document.createElement("div");
+                    if (msg.username == username) {
+                        chat.classList.add("chat", "chat-end", "max-w-xl", "text-wrap");
+                    } else {
+                        chat.classList.add("chat", "chat-start", "max-w-xl", "text-wrap");
+                    }
+
+                    const chatHeader = document.createElement("div");
+                    chatHeader.classList.add("chat-header");
+                    if (userSetting.showName) {
+                        chatHeader.innerText = msg.username.split("#")[0];
+                        if (msg.username === "Server") {
+                            chatHeader.innerText = `${msg.userCount} users online!`;
+                        }
+                        chatHeader.setAttribute("title", msg.username)
+                    }
+
+
+                    const chatBubble = document.createElement("div");
+                    chatBubble.classList.add("chat-bubble");
+                    if (msg.username == username) {
+                        chatBubble.classList.add("chat-bubble-info");
+                    } else if (msg.username === "Server") {
+                        chatBubble.classList.add("chat-bubble-secondary");
+                    } else {
+                        chatBubble.classList.add("chat-bubble-primary");
+                    }
+                    chatBubble.innerHTML = formatMessage(msg.message);
+
+                    const chatFooter = document.createElement("div");
+                    chatFooter.classList.add("chat-footer");
+                    if (userSetting.showTime) {
+                        const chatTime = document.createElement("time");
+                        chatTime.classList.add("text-xs", "opacity-50");
+                        chatTime.innerText = msg.time;
+                        chatFooter.appendChild(chatTime);
+                    }
+
+                    chat.appendChild(chatHeader);
+                    chat.appendChild(chatBubble);
+                    chat.appendChild(chatFooter);
+
+                    chatDisplay.appendChild(chat);
+
+                    //scroll to top
+                    chatDisplay.scrollTop = chatDisplay.scrollHeight;
+                })
+
+                document.getElementById("action-bar").addEventListener("submit", (event) => {
+                    event.preventDefault();
+                    const message = document.getElementById("user-input").value;
+
+                    if (message.trim() === "") return;
+                    // alert(`${username} said : ${message}`);
+
+                    socket.emit("client-message", {
+                        username,
+                        message,
+                        room: roomId,
+                        time: new Date().toTimeString().split(" ")[0]
+
+                    });
+                    document.getElementById("user-input").value = "";
+                })
+            });
+            //socket events
+        })();
+    </script>
+    <%- include('layout/theme', {theme}) %>
+</body>
+
+</html>
