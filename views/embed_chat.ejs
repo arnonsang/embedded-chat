@@ -90,7 +90,7 @@
         };
 
         (() => {
-            const socket = io("flyer.iamickdev.com", {
+            const socket = io("http://localhost:8000", {
                 transports: ["websocket"],
                 cors: ["http://localhost:8000"],
                 handlePreflightRequest: (req, res) => {
@@ -149,7 +149,7 @@
 
 
                     const chatBubble = document.createElement("div");
-                    chatBubble.classList.add("chat-bubble");
+                    chatBubble.classList.add("chat-bubble", "whitespace-no-wrap", "overflow-x-hidden","text-warp", "word-break", "max-w-sm");
                     if (msg.username == username) {
                         chatBubble.classList.add("chat-bubble-info");
                     } else if (msg.username === "Server") {
