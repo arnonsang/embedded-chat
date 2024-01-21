@@ -9,22 +9,22 @@
   <div class="hero min-h-screen bg-base-200">
     <div class="hero-content flex-col lg:flex-row-reverse">
       <div class="card shrink-0 w-full max-w-sm shadow-2xl bg-base-100">
-        <form class="card-body" onsubmit="joinRoom()">
+        <form id="joinForm" class="card-body">
           <div class="form-control">
             <label class="label">
               <span class="label-text">Display name</span>
             </label>
-            <input id="username" name="username" type="text" placeholder="ex. Jibijib" value="<%= config.name %>"
+            <input id="username" name="name" type="text" placeholder="ex. Jibijib" value="<%= config.name %>"
               class="input input-bordered" required />
           </div>
           <div class="form-control">
             <label class="label">
               <span class="label-text">Room</span>
             </label>
-            <input id="roomId" name="roomId" type="text" maxlength="12" value="<%= config.room %>"
+            <input id="roomId" name="room" type="text" maxlength="12" value="<%= config.room %>"
               placeholder="ex. eXd5s" class="input input-bordered" required />
             <label class="label">
-              <a href="#" class="label-text-alt link link-hover">Create new room?</a>
+              <button onclick="newRoom()" class="label-text-alt link link-hover">Create new room?</button>
             </label>
           </div>
           <div class="form-control mt-6">
@@ -100,7 +100,8 @@
 
     document.getElementById("roomId").value = roomCode;
 
-    Toastify({
+    if(document.getElementById("username").value == ""){
+      Toastify({
       text: "Please enter your name and join your new room!",
       duration: waitTime,
       close: true,
@@ -112,27 +113,13 @@
       },
       onClick: function () {} // Callback after click
     }).showToast();
+    }
   }
 
-  //socket connection
-  (() => {
-    const socket = io("http://localhost:8000", {
-      transports: ["websocket"],
-      cors: ["http://localhost:8000"],
-      handlePreflightRequest: (req, res) => {
-        const headers = {
-          "Access-Control-Allow-Headers": "Content-Type, Authorization",
-          "Access-Control-Allow-Origin": "*", //or the specific origin you want to give access to,
-          "Access-Control-Allow-Credentials": true,
-        };
-        res.writeHead(200, headers);
-        res.end();
-      },
-    });
-    //socket events
-
-    //socket events
-  })();
+  document.getElementById("joinForm").addEventListener("submit", (e) => {
+    e.preventDefault();
+    joinRoom();
+  });
 </script>
 
 </html>
