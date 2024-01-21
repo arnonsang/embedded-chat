@@ -1,90 +1,138 @@
 <!DOCTYPE html>
 <html data-theme="cupcake" class="bg-base-200">
-  <head>
-    <%- include('layout/header', {title:'Home', description:'ICKChat, Embedded chat for every site!'}) %>
-  </head>
 
-  <body class="container mx-auto">
-    <div class="hero min-h-screen bg-base-200">
-      <div class="hero-content flex-col lg:flex-row-reverse">
-        <div class="card shrink-0 w-full max-w-sm shadow-2xl bg-base-100">
-          <form class="card-body" onsubmit="joinRoom()">
-            <div class="form-control">
-              <label class="label">
-                <span class="label-text">Display name</span>
-              </label>
-              <input
-                id="username"
-                name="username"
-                type="text"
-                placeholder="ex. Jibijib"
-                value="<%= config.name %>"
-                class="input input-bordered"
-                required
-              />
-            </div>
-            <div class="form-control">
-              <label class="label">
-                <span class="label-text">Room</span>
-              </label>
-              <input
-                id="roomId"
-                name="roomId"
-                type="text"
-                maxlength="12"
-                value="<%= config.room %>"
-                placeholder="ex. eXd5s"
-                class="input input-bordered"
-                required
-              />
-              <label class="label">
-                <a href="#" class="label-text-alt link link-hover"
-                  >Create new room?</a
-                >
-              </label>
-            </div>
-            <div class="form-control mt-6">
-              <button class="btn btn-primary">Join chat room</button>
-            </div>
-          </form>
-        </div>
-        <div class="text-center lg:text-left">
-          <h1 class="text-5xl font-bold">ICK Chat</h1>
-          <p class="py-6 max-w-sm">
-            Welcome to ICK Chat, the embedded chat for every site!
-          </p>
-        </div>
+<head>
+  <%- include('layout/header', {title:'Home', description:'ICKChat, Embedded chat for every site!'}) %>
+</head>
+
+<body class="container mx-auto">
+  <div class="hero min-h-screen bg-base-200">
+    <div class="hero-content flex-col lg:flex-row-reverse">
+      <div class="card shrink-0 w-full max-w-sm shadow-2xl bg-base-100">
+        <form class="card-body" onsubmit="joinRoom()">
+          <div class="form-control">
+            <label class="label">
+              <span class="label-text">Display name</span>
+            </label>
+            <input id="username" name="username" type="text" placeholder="ex. Jibijib" value="<%= config.name %>"
+              class="input input-bordered" required />
+          </div>
+          <div class="form-control">
+            <label class="label">
+              <span class="label-text">Room</span>
+            </label>
+            <input id="roomId" name="roomId" type="text" maxlength="12" value="<%= config.room %>"
+              placeholder="ex. eXd5s" class="input input-bordered" required />
+            <label class="label">
+              <a href="#" class="label-text-alt link link-hover">Create new room?</a>
+            </label>
+          </div>
+          <div class="form-control mt-6">
+            <button class="btn btn-primary">Join chat room</button>
+          </div>
+        </form>
+      </div>
+      <div class="text-center lg:text-left">
+        <h1 class="text-5xl font-bold">ICK Chat</h1>
+        <p class="py-6 max-w-sm">
+          Welcome to ICK Chat, the embedded chat for every site!
+        </p>
       </div>
     </div>
-  </body>
+  </div>
+</body>
 
-  <%- include('layout/theme', {theme}) %>
+<%- include('layout/theme', {theme}) %>
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.1.2/socket.io.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-  <script>
-    const joinRoom = () => {
-      const name = document.getElementById("username").value;
-      const room = document.getElementById("roomId").value;
-      alert(`Joining room ${room} as ${name}`);
-    };
-    (() => {
-      const socket = io("http://localhost:8000", {
-        transports: ["websocket"],
-        cors: ["http://localhost:8000"],
-        handlePreflightRequest: (req, res) => {
-          const headers = {
-            "Access-Control-Allow-Headers": "Content-Type, Authorization",
-            "Access-Control-Allow-Origin": "*", //or the specific origin you want to give access to,
-            "Access-Control-Allow-Credentials": true,
-          };
-          res.writeHead(200, headers);
-          res.end();
-        },
-      });
-      //socket events
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.1.2/socket.io.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+<script>
+  const joinRoom = () => {
+    const waitTime = 5 * 1000;
+    const name = document.getElementById("username").value;
+    const room = document.getElementById("roomId").value;
+    Toastify({
+      text: "Joining room " + room + " as " + name,
+      duration: waitTime,
+      
+      close: true,
+      gravity: "top", // `top` or `bottom`
+      position: "left", // `left`, `center` or `right`
+      stopOnFocus: true, // Prevents dismissing of toast on hover
+      style: {
+        background: "linear-gradient(to right, #00b09b, #96c93d)",
+      },
+      onClick: function () {} // Callback after click
+    }).showToast();
 
-      //socket events
-    })();
-  </script>
+    setTimeout(() => {
+      window.location.href = `/chat/embed?name=${name}&room=${room}`;
+    }, waitTime);
+  };
+
+  const generateRoomCode = (digit) => {
+    //generate random char to be a  identifier
+    let result = "";
+    const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    const charactersLength = characters.length;
+    for (let i = 0; i < digit; i++) {
+      result += characters.charAt(Math.floor(Math.random() * charactersLength));
+    }
+    return result;
+  };
+
+  const newRoom = () => {
+    const roomCode = generateRoomCode(5);
+    const waitTime = 3 * 1000;
+    Toastify({
+      text: "Creating new room " + roomCode,
+      duration: waitTime,
+      close: true,
+      gravity: "top", // `top` or `bottom`
+      position: "left", // `left`, `center` or `right`
+      stopOnFocus: true, // Prevents dismissing of toast on hover
+      style: {
+        background: "linear-gradient(to right, #00b09b, #96c93d)",
+      },
+      onClick: function () {} // Callback after click
+    }).showToast();
+
+    document.getElementById("roomId").value = roomCode;
+
+    Toastify({
+      text: "Please enter your name and join your new room!",
+      duration: waitTime,
+      close: true,
+      gravity: "top", // `top` or `bottom`
+      position: "left", // `left`, `center` or `right`
+      stopOnFocus: true, // Prevents dismissing of toast on hover
+      style: {
+        background: "linear-gradient(to right, #00b09b, #96c93d)",
+      },
+      onClick: function () {} // Callback after click
+    }).showToast();
+  }
+
+  //socket connection
+  (() => {
+    const socket = io("http://localhost:8000", {
+      transports: ["websocket"],
+      cors: ["http://localhost:8000"],
+      handlePreflightRequest: (req, res) => {
+        const headers = {
+          "Access-Control-Allow-Headers": "Content-Type, Authorization",
+          "Access-Control-Allow-Origin": "*", //or the specific origin you want to give access to,
+          "Access-Control-Allow-Credentials": true,
+        };
+        res.writeHead(200, headers);
+        res.end();
+      },
+    });
+    //socket events
+
+    //socket events
+  })();
+</script>
+
 </html>
