@@ -1,5 +1,5 @@
 
-# Flyer chat - A embedded web-chat
+# Flyer chat - An embedded web-chat
 
 <!-- Project logo and screenshot section -->
 
