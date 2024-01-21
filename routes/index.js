@@ -3,7 +3,7 @@ const router = express.Router();
 
 router.get('/', function (req, res, next) {
   const { name, room, theme } = req.query;
-  res.render("chat", {
+  res.render("index", {
     config: {
       name: name ?? "",
       room: room ?? "",
