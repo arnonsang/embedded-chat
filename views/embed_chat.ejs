@@ -90,7 +90,7 @@
         };
 
         (() => {
-            const socket = io("http://localhost:8000", {
+            const socket = io("flyer.iamickdev.com", {
                 transports: ["websocket"],
                 cors: ["http://localhost:8000"],
                 handlePreflightRequest: (req, res) => {
