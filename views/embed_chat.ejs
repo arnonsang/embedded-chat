@@ -59,7 +59,7 @@
                 else if (msg.match(/\.(jpeg|jpg|gif|png)$/)) {
                     // replace link with image tag
                     msg = msg.replace(
-                        /(https?:\/\/.*\.(?:png|jpg))/i,
+                        /(https?:\/\/.*\.(?:png|jpg|webp|gif|svg))/i,
                         '<img src="$1" width="256" height="144" alt="image" />'
                     );
                 }
@@ -149,7 +149,7 @@
 
 
                     const chatBubble = document.createElement("div");
-                    chatBubble.classList.add("chat-bubble");
+                    chatBubble.classList.add("chat-bubble", "whitespace-no-wrap", "overflow-x-hidden","text-warp", "word-break", "max-w-sm");
                     if (msg.username == username) {
                         chatBubble.classList.add("chat-bubble-info");
                     } else if (msg.username === "Server") {
