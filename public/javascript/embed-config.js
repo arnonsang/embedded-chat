@@ -19,7 +19,7 @@ const previewIFrame = () => {
     let showTime = document.getElementById("show-time-setting").checked;
     let showJoinLeave = document.getElementById("show-join-leave-setting").checked;
     let showName = document.getElementById("show-name-setting").checked;
-    let url = `https://${window.location.host}/chat/embed?name=${name}&room=${roomcode}`;
+    let url = `http://${window.location.host}/chat/embed?name=${name}&room=${roomcode}`;
 
     if(theme != "no-theme"){
         url += `&theme=${theme}`;
@@ -44,11 +44,10 @@ const previewIFrame = () => {
     
     embedurl = url;
     embedCode = `<iframe src="${embedurl}" width="100%" height="500px" frameborder="0"></iframe>`;
-    // document.getElementById("previewFrame").src = url;
-    // document.getElementById('previewFrame').contentWindow.location.reload();
+    document.getElementById("previewFrame").src = url;
+    //document.getElementById('previewFrame').contentWindow.location.reload();
     document.getElementById("embedCode").value = embedCode;
     document.getElementById("previewLink").href = url;
-
 }
 
 const copyEmbed = () => {

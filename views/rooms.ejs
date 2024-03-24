@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html data-theme="cupcake" class="bg-base-200">
+
+<head>
+    <%- include('layout/header', {title:`${config.room} | Flyer`, description:`Join room id ${config.room} now. Flyer Chat, a Embedded chat for every site`}) %>
+
+</head>
+
+<body class="container mx-auto min-h-screen flex flex-col items-center justify-center">
+    <h2 class="text-center text-5xl font-bold" style="padding-top: 8rem; padding-bottom:4rem;">Room list</h2>
+    <div class="h-screen flex-1 flex flex-row gap-4" id="roomlist">
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.1.2/socket.io.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script>
+        (() => {
+            const socket = io("http://localhost:8000", {
+                transports: ["websocket"],
+                cors: ["http://localhost:8000"],
+                handlePreflightRequest: (req, res) => {
+                    const headers = {
+                        "Access-Control-Allow-Headers": "Content-Type, Authorization",
+                        "Access-Control-Allow-Origin": "*",
+                        "Access-Control-Allow-Credentials": true,
+                    };
+                    res.writeHead(200, headers);
+                    res.end();
+                },
+            });
+            
+            socket.on('connect', () => {
+                socket.on('user-list', (list) => {
+                    const roomList = document.getElementById("roomlist");
+                    roomList.innerHTML = "";
+                    const availableRoom = [];
+                    list.forEach((room) => {
+                        if (!availableRoom.includes(room.room)) {
+                            availableRoom.push(room.room);
+                        }
+                    });
+                    availableRoom.forEach((name) => {
+                        const room = document.createElement("div");
+                        //add style of room here
+                        const roomNameButton = document.createElement("button")
+                        roomNameButton.innerText = name;
+                        roomNameButton.onclick = () => {
+                            document.getElementById(`room_${name}`).classList.toggle("hidden");
+                        }
+                        //add style of roomNameButton here
+                        room.appendChild(roomNameButton);
+                        roomList.appendChild(room);
+                        
+                        const userInRoom = list.filter((user) => user.room === name);
+                        const userList = document.createElement("ul");
+                        userList.id = `room_${name}`;
+                        userInRoom.forEach((user) => {
+                            const userItem = document.createElement("li");
+                            userItem.innerText = `     - ${user.user}`;
+                            userList.appendChild(userItem);
+                        });
+                        //add style of user
+                        room.appendChild(userList);
+                    })
+
+                })
+            });
+        })();
+    </script>
+    <%- include('layout/theme', {theme}) %>
+</body>
+
+</html>
