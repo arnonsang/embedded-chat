@@ -1,7 +1,5 @@
 const disconnectHandler = (io, socket, activeRooms) => {
-    
     socket.leave(socket.room);
-
     activeRooms = activeRooms.filter((room) => {
         return room.user !== socket.username;
     });

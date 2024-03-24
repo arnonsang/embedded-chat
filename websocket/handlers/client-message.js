@@ -1,4 +1,4 @@
-const log = (msg) => {
+const logger = (msg) => {
     if(process.env.MODE !== 'dev') return;
 
     console.log(`========================================`.blue);
@@ -9,16 +9,9 @@ const log = (msg) => {
 };
 
 const clientMessageHandler = (io, activeRooms, msg) => {
-
-    log(msg)
-
+    logger(msg)
     msg.userCount = activeRooms.filter((room) => room.room === msg.room).length;
-
     io.to(msg.room).emit('server-message', msg);
 }
-
-const colors = require('colors');
-
-
 
 module.exports = clientMessageHandler;

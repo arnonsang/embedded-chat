@@ -13,7 +13,7 @@ const dotenv = require('dotenv').config();
  * Get port from environment and store in Express.
  */
 
-const port = normalizePort(process.env.PORT || '3000');
+const port = normalizePort(process.env.PORT || '8000');
 app.set('port', port);
 
 /**
@@ -22,7 +22,7 @@ app.set('port', port);
 
 const server = http.createServer(app);
 const io = require('socket.io')(server);
-const socketEvent = require('../ws/socket.js');
+const socketEvent = require('../websocket/socket.js');
 
 /**
  * Listen on provided port, on all network interfaces.
