@@ -59,7 +59,7 @@
                 else if (msg.match(/\.(jpeg|jpg|gif|png)$/)) {
                     // replace link with image tag
                     msg = msg.replace(
-                        /(https?:\/\/.*\.(?:png|jpg))/i,
+                        /(https?:\/\/.*\.(?:png|jpg|webp|gif|svg))/i,
                         '<img src="$1" width="256" height="144" alt="image" />'
                     );
                 }
